@@ -103,6 +103,7 @@ class ExtendedFeatureExtractor(bitvectors: Map[String, BitVector])
   extends FeatureExtractor {
 
   lazy val stemmer = new PorterStemmer
+  val numberRE = """^[0-9,\.]+$""".r
 
   override def apply(
     verb: String, noun: String, prep: String, prepObj: String): Iterable[AttrVal] = {
@@ -112,9 +113,56 @@ class ExtendedFeatureExtractor(bitvectors: Map[String, BitVector])
     val basicFeatures = BasicFeatureExtractor(verb, noun, prep, prepObj)
 
     // Extract more features
+    
+    // Stems
+    val verbStem    = stemmer(verb)
+    val nounStem    = stemmer(noun)
+    val prepObjStem = stemmer(prepObj)
+
+
+    
+    // Form Attributes
+    val nounForm = if (numberRE.findAllIn(noun).size > 0) {
+      "number"
+    } else if (!noun.exists(_.isLower)) {
+      "XX" 
+    } else if (noun(0).isUpper) {
+      "Xx"
+    } else {
+      "xx"
+    }
+
+    val prepObjForm = if (numberRE.findAllIn(prepObj).size > 0) {
+      "number"
+    } else if (!prepObj.exists(_.isLower)) {
+      "XX" 
+    } else if (prepObj(0).isUpper) {
+      "Xx"
+    } else {
+      "xx"
+    }
+
+    // Combos
+    val verbNoun    = verb+noun
+    val prepPrepObj = prep+prepObj
+
+    // BitVector Clusters
+    val topBits = 20 // Cutoff point
+    val nounVec = bitvectors(noun).keepTopBits(topBits)
+    val verbVec = bitvectors(verb).keepTopBits(topBits)
+    val prepObjVec = bitvectors(prepObj).keepTopBits(topBits)
 
     // Return the features. You should of course add your features to basic ones.
-    basicFeatures
+    basicFeatures ++ List(AttrVal("vStem", verbStem),
+                          AttrVal("nStem", nounStem),
+                          AttrVal("poStem", prepObjStem),
+                          AttrVal("noun_form", nounForm),
+                          AttrVal("prepObjForm", prepObjForm),
+                          AttrVal("verbNounCombo", verbNoun),
+                          AttrVal("nounVec", nounVec.toString),
+                          AttrVal("verbVec", verbVec.toString),
+                          AttrVal("prepObjVec", prepObjVec.toString),
+                          AttrVal("prepPrepObjCombo", prepPrepObj))
   }
 
 }
