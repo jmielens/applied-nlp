@@ -120,7 +120,6 @@ class ExtendedFeatureExtractor(bitvectors: Map[String, BitVector])
     val prepObjStem = stemmer(prepObj)
 
 
-    
     // Form Attributes
     val nounForm = if (numberRE.findAllIn(noun).size > 0) {
       "number"
