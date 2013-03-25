@@ -21,10 +21,9 @@ can set the path in your `.bashrc` file as follows:
 ## Running HW4
 
 To run Problem 5 of HW4, the text classification, run the following while
-in the `ANLP_DIR`, making sure that nak is installed and the `NAK_DIR` variable is set correctly. 
+in the `ANLP_DIR`.
 
 	anlp run appliednlp.classify.FarmAdClassify
-	nak classify --train data/farm/farm-ads.train --eval data/farm/farm-ads.test
 
 To change the number of features used for classification, pass an integer argument to FarmAdClassify, as shown below (default is 50)
 
